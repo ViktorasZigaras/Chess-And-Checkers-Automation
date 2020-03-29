@@ -34,9 +34,16 @@
 .piece {
     width: 75px;
     height: 75px;
-    border-radius: 10px;
+    border-radius: 25px;
     background-color: purple;
     position: absolute;
-    border: 1px solid blue;
+    border: 5px solid blue;
+    padding: 3px;
+    color: #FFF;
+    font-weight: bold;
+    line-height: 30px;
+    font-size: 18px;
+    text-shadow: 2px 2px 6px sandybrown;
+    text-align: center;
 }
 
