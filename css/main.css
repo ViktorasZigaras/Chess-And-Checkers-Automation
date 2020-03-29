@@ -5,6 +5,7 @@
     border: 3px solid black;
     width: 606px;
     height: 606px;
+    position: relative;
 }
 
     .row {
@@ -29,4 +30,13 @@
         .black {
             background-color: black;
         }
+
+.piece {
+    width: 75px;
+    height: 75px;
+    border-radius: 10px;
+    background-color: purple;
+    position: absolute;
+    border: 1px solid blue;
+}
 
