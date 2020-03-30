@@ -44,8 +44,24 @@ const setUpPieces = () => {
     piecePhysical.id = 0
     piecePhysical.style.top = rowHeight * piece.y + 'px'
     piecePhysical.style.left = colWidth * piece.x + 'px'
-    piecePhysical.className = 'piece'
-    piecePhysical.innerHTML = 'Pawn 1'
+    piecePhysical.className = 'piece piece-black'
+    piecePhysical.innerHTML = 'Pawn Black-1'
+    board.appendChild( piecePhysical )
+
+    //repetition
+
+    piece = {}
+    piece.type = 'pawn'
+    piece.x = 2
+    piece.y = 7
+    pieces.push(piece)
+
+    piecePhysical = document.createElement( 'div' )
+    piecePhysical.id = 1
+    piecePhysical.style.top = rowHeight * piece.y + 'px'
+    piecePhysical.style.left = colWidth * piece.x + 'px'
+    piecePhysical.className = 'piece piece-white'
+    piecePhysical.innerHTML = 'Pawn White-1'
     board.appendChild( piecePhysical )
 }
 
@@ -53,13 +69,19 @@ const pieces = []
 setUpPieces()
 
 const startTimer = () => {
-    const piecePhysical = document.querySelector( '.piece' )
-    const piece = pieces[ piecePhysical.id ]
-    timer = setInterval( () => { downMovement( piece, piecePhysical ) }, 300 )
+    const pieceBlack = document.querySelector( '.piece-black' )
+    let pieceB = pieces[ pieceBlack.id ]
+    timerDown = setInterval( () => { downMovement( pieceB, pieceBlack ) }, 300 )
+
+    const pieceWhite = document.querySelector( '.piece-white' )
+    let pieceW = pieces[ pieceWhite.id ]
+    timerUp = setInterval( () => { upMovement( pieceW, pieceWhite ) }, 300 )
+
     // setInterval( () => { randomMovement( piece ) }, 300 )
 }
 
-let timer
+let timerDown
+let timerUp
 startTimer()
 
 const downMovement = ( piece, piecePhysical ) => {
@@ -68,7 +90,17 @@ const downMovement = ( piece, piecePhysical ) => {
     console.log( piece.y )
     if ( piece.y === rowCount - 1 ) {
         piecePhysical.innerHTML = 'Queen'
-        clearInterval( timer )
+        clearInterval( timerDown )
+    }
+}
+
+const upMovement = ( piece, piecePhysical ) => {
+    piece.y--
+    piecePhysical.style.top = piece.y * rowHeight + 'px'
+    console.log( piece.y )
+    if ( piece.y === 0 ) {
+        piecePhysical.innerHTML = 'Queen'
+        clearInterval( timerUp )
     }
 }
 
@@ -90,3 +122,6 @@ const getRngInteger = ( min, max ) => {
     return Math.floor( Math.random() * ( max - min + 1 ) ) + min
 }
 
+//innerHtml
+//innerText
+//textContent - ?
