@@ -6,6 +6,7 @@ const createPiece = ( type, x, y, color, text, id ) => {
     piece.x = x
     piece.y = y
     piece.moves = 0
+    piece.id = id
     piece.color = color
     variables.pieces.push(piece)
 
@@ -20,8 +21,8 @@ const createPiece = ( type, x, y, color, text, id ) => {
 
 const setUpPieces = () => {
 
-    createPiece( 'pawn' , 0, 0, 'black', 'Pawn Black-1', 0 )
-    createPiece( 'pawn' , 2, 7, 'white', 'Pawn White-1', 1 )
+    createPiece( 'pawn' , 0, 0, 'Black', 'Pawn Black-1', 0 )
+    createPiece( 'pawn' , 0, 2, 'White', 'Pawn White-1', 1 )
 
 }
 

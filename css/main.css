@@ -43,14 +43,14 @@
     text-align: center;
 }
 
-.piece-black {
+.piece-Black {
     background-color: purple;
     border: 5px solid blue;
     color: white;
     text-shadow: 2px 2px 6px red;
 }
 
-.piece-white {
+.piece-White {
     background-color: yellow;
     border: 5px solid purple;
     color: black;
