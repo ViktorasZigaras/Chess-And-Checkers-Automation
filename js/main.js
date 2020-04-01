@@ -17,6 +17,8 @@ let count = 0
 const testMovement = ( pieceB, pieceW ) => {
     if ( !variables.victory ) {
         if ( count === 0 ) pieceMovement( 'line', true, pieceB )
+        else if ( count === 1 ) pieceMovement( 'line', false, pieceB )
+        else if ( count === 2 ) pieceMovement( 'line', false, pieceB )
         // if ( count === 1 ) pieceMovement( 'right', false, pieceB )
         // if ( count === 2 ) pieceMovement( 'right', false, pieceB )
 
