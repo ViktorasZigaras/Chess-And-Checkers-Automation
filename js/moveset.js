@@ -1,55 +1,48 @@
 "use strict"
 
-//merge ifs, review code;
-//generate all possible moves
-//choose moves at random
-//end game when needed
+//generate all possible moves - test
+
 //add draw end condition
+
+//refactor: imports, classes
+
+//controls: speed levels, start, stop, next move, etc
 
 const pieceMovementValidation = ( mode, performDash, piece, direction ) => {
     let moveOk = false
     if ( piece.type === 'pawn' ) {
 
-        if ( direction === 1 && piece.y + 1 < constants.rowCount ) 
-            moveOk = true
-        else if ( direction === -1 && piece.y - 1 >= 0 ) 
-            moveOk = true
+        if ( 
+            ( direction === 1 && piece.y + 1 < constants.rowCount )
+            || 
+            ( direction === -1 && piece.y - 1 >= 0 ) 
+        ) moveOk = true
 
-        if ( moveOk && mode === 'line' ) 
-            moveOk = canMove( piece, performDash, direction )
-        else if ( moveOk && mode === 'left' 
-            && piece.x - 1 < 0 
-            && locatePieceAt( piece, -1, direction, false ) ) 
-            moveOk = false
-        else if ( moveOk && mode === 'right' 
-            && piece.x + 1 >= constants.colCount - 1 
-            && locatePieceAt( piece, 1, direction, false ) ) 
-            moveOk = false
+        if ( moveOk && mode === 'line' ) {
+            //
+            moveOk = !locatePieceAt( piece, 0, direction, false )
+            if ( moveOk && performDash && piece.moves !== 0 ) {
+                moveOk = !locatePieceAt( piece, 0, direction * 2, false )
+            }
+        }
+            // moveOk = canMove( piece, performDash, direction )
+        else if ( 
+            ( 
+                moveOk && mode === 'left' 
+                && piece.x - 1 < 0 
+                && locatePieceAt( piece, -1, direction, false ) 
+            )
+            || 
+            ( 
+                moveOk && mode === 'right' 
+                && piece.x + 1 >= constants.colCount - 1 
+                && locatePieceAt( piece, 1, direction, false ) 
+            )
+        ) moveOk = false
 
     }
     return moveOk
 }
-
-const canMove = ( piece, dash, direction ) => {
-    let allow = true
-    allow = !locatePieceAt( piece, 0, direction, false )
-    if ( dash && piece.moves !== 0 && allow ) {
-        allow = !locatePieceAt( piece, 0, direction * 2, false )
-    }
-    return allow
-}
-
-// const checkForFreeSpace = ( piece, direction ) => {
-//     let otherPiece
-//     for ( let i = 0; i < variables.pieces.length; i++ ) {
-//         otherPiece = variables.pieces[i]
-//         if ( otherPiece.id !== piece.id 
-//             && otherPiece.x === piece.x 
-//             && otherPiece.y === piece.y + direction ) 
-//             return false
-//     }
-//     return true
-// }
 
 const locatePieceAt = ( piece, xOffset, yOffset, takePiece ) => {
     let found = false
@@ -63,7 +56,7 @@ const locatePieceAt = ( piece, xOffset, yOffset, takePiece ) => {
             found = true
             if ( takePiece ) {
                 console.log( 'taken!' )   
-                variables.pieces.splice( i )
+                variables.pieces.splice( i, 1 )
                 variables.piecesTaken.push( otherPiece )    
                 document.getElementById( otherPiece.id ).style.visibility = 'hidden'
             }
@@ -73,11 +66,39 @@ const locatePieceAt = ( piece, xOffset, yOffset, takePiece ) => {
     return found
 }
 
-// let direction
-// if ( piece.color === 'Black' ) direction = 1
-// else if ( piece.color === 'White' ) direction = -1
+const generateLegalMoves = () => {
+    variables.legalMoves = []
+
+    for ( let i = 0; i < variables.pieces.length; i++ ) {
+        generateLegalMovesSpecific( variables.pieces[i] )
+    }
+    
+    //
+}
+
+const generateLegalMovesSpecific = ( piece ) => {
+    if ( piece.type === 'pawn' ) {
+        let direction
+        if ( piece.color === 'Black' ) direction = 1
+        else if ( piece.color === 'White' ) direction = -1
+        //
+        if ( pieceMovementValidation( 'line', true, piece, direction ) )
+            variables.legalMoves.push( 
+                { mode: 'line', dash: true, piece: piece, direction: direction } )
+        if ( pieceMovementValidation( 'line', false, piece, direction ) )
+            variables.legalMoves.push( 
+                { mode: 'line', dash: false, piece: piece, direction: direction } )
+        if ( pieceMovementValidation( 'left', false, piece, direction ) )
+            variables.legalMoves.push( 
+                { mode: 'left', dash: false, piece: piece, direction: direction } )
+        if ( pieceMovementValidation( 'right', false, piece, direction ) )
+            variables.legalMoves.push( 
+                { mode: 'right', dash: false, piece: piece, direction: direction } )
+    }
+}
 
 const pieceMovement = ( mode, performDash, piece, direction ) => {
+    console.log( mode, performDash, piece, direction )    
     if ( piece.type === 'pawn' ) {
 
         if ( mode === 'left' ) piece.x--
@@ -113,4 +134,5 @@ const checkVictoryCondition = () => {
         console.log( variables.pieces[0].color + ' Wins!' )
         variables.victory = true
     }
+    else generateLegalMoves()
 }

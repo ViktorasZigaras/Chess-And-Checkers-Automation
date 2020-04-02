@@ -3,27 +3,20 @@
 const pawnMoveAttack = () => {}
 
 const startTimer = () => {
-    let pieceB = variables.pieces[ 0 ]
-    let pieceW = variables.pieces[ 1 ]
+    generateLegalMoves()
 
     timers.timerTest = setInterval( 
-        () => { testMovement( pieceB, pieceW ) }, 500 
+        () => testMovement(), 500 
     )
 }
 
 startTimer()
 
-let count = 0
-const testMovement = ( pieceB, pieceW ) => {
-    if ( !variables.victory ) {
-        if ( count === 0 ) pieceMovement( 'line', true, pieceB )
-        else if ( count === 1 ) pieceMovement( 'line', false, pieceB )
-        else if ( count === 2 ) pieceMovement( 'line', false, pieceB )
-        // if ( count === 1 ) pieceMovement( 'right', false, pieceB )
-        // if ( count === 2 ) pieceMovement( 'right', false, pieceB )
-
-        else clearInterval( timers.timerTest )
-        count++
+const testMovement = () => {
+    if ( !variables.victory && variables.legalMoves.length > 0 ) {
+        const move = variables.legalMoves[ getRngInteger( 0, variables.legalMoves.length - 1 ) ]
+        console.log( move, variables.legalMoves )        
+        pieceMovement( move.mode, move.dash, move.piece, move.direction )
     }
     else clearInterval( timers.timerTest )
 }
@@ -96,6 +89,8 @@ const getRngInteger = ( min, max ) => {
 //textContent - ?
 // ctrl-d - select all; ctrl+shift+L
 //parseInt, etc, parseFloat
+
+//export default Class/other
 
 
 // const board = document.getElementsByClassName( 'board' )

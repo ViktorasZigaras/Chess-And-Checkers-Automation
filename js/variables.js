@@ -10,6 +10,7 @@ const variables = {}
 variables.board = document.querySelector( '.board' ) //All
 variables.pieces = []
 variables.piecesTaken = []
+variables.legalMoves = []
 variables.victory = false
 
 const timers = {}
