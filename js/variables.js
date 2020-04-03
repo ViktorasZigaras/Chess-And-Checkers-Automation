@@ -1,18 +1,6 @@
 "use strict"
 
-const constants = {}
-constants.rowCount = 8
-constants.colCount = 8
-constants.rowHeight = 75
-constants.colWidth = 75
-
-const variables = {}
-variables.board = document.querySelector( '.board' ) //All
-variables.pieces = []
-variables.piecesTaken = []
-variables.legalMoves = []
-variables.victory = false
-
-const timers = {}
-// timers.timerDown
-// timers.timerUp
+export const rowCount = 8
+export const colCount = 8
+export const rowHeight = 75
+export const colWidth = 75

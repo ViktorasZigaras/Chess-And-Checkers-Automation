@@ -1,138 +1,163 @@
 "use strict"
 
-//generate all possible moves - test
+import * as constants from './variables.js'
 
-//add draw end condition
-
-//refactor: imports, classes
-
-//controls: speed levels, start, stop, next move, etc
-
-const pieceMovementValidation = ( mode, performDash, piece, direction ) => {
-    let moveOk = false
-    if ( piece.type === 'pawn' ) {
-
-        if ( 
-            ( direction === 1 && piece.y + 1 < constants.rowCount )
-            || 
-            ( direction === -1 && piece.y - 1 >= 0 ) 
-        ) moveOk = true
-
-        if ( moveOk && mode === 'line' ) {
-            //
-            moveOk = !locatePieceAt( piece, 0, direction, false )
-            if ( moveOk && performDash && piece.moves !== 0 ) {
-                moveOk = !locatePieceAt( piece, 0, direction * 2, false )
-            }
-        }
-            // moveOk = canMove( piece, performDash, direction )
-        else if ( 
-            ( 
-                moveOk && mode === 'left' 
-                && piece.x - 1 < 0 
-                && locatePieceAt( piece, -1, direction, false ) 
-            )
-            || 
-            ( 
-                moveOk && mode === 'right' 
-                && piece.x + 1 >= constants.colCount - 1 
-                && locatePieceAt( piece, 1, direction, false ) 
-            )
-        ) moveOk = false
-
+export default class MoveSet {
+    constructor( main ) {
+        this.main = main
+        console.log(main)
     }
-    return moveOk
-}
 
-const locatePieceAt = ( piece, xOffset, yOffset, takePiece ) => {
-    let found = false
-    let otherPiece
-    for ( let i = 0; i < variables.pieces.length; i++ ) {
-        otherPiece = variables.pieces[i]
-        if ( otherPiece.id !== piece.id 
-            && piece.x + xOffset === otherPiece.x 
-            && piece.y + yOffset === otherPiece.y ) 
-        {
-            found = true
-            if ( takePiece ) {
-                console.log( 'taken!' )   
-                variables.pieces.splice( i, 1 )
-                variables.piecesTaken.push( otherPiece )    
-                document.getElementById( otherPiece.id ).style.visibility = 'hidden'
-            }
-            break
+    generateLegalMoves = () => {
+        this.main.legalMoves = []
+        for ( let i = 0; i < this.main.pieces.length; i++ ) {
+            this.generateLegalMovesSpecific( this.main.pieces[i] )
+        }
+        if ( this.main.legalMoves.length === 0 ) {
+            console.log( 'Draw!' )
+            setTimeout( () => alert( 'Draw!' ), 100 )
+            this.main.victory = true
         }
     }
-    return found
-}
 
-const generateLegalMoves = () => {
-    variables.legalMoves = []
-
-    for ( let i = 0; i < variables.pieces.length; i++ ) {
-        generateLegalMovesSpecific( variables.pieces[i] )
+    generateLegalMovesSpecific = ( piece ) => {
+        if ( piece.type === 'pawn' ) {
+            let direction
+            if ( piece.color === 'Black' ) direction = 1
+            else if ( piece.color === 'White' ) direction = -1
+            const moveGeneral = { 
+                info: piece.color + ' ' + piece.type + '-' + piece.id, 
+                piece: piece, 
+                direction: direction 
+            }
+            let moveDetails
+            if ( this.pieceMovementValidation( 'line', true, piece, direction ) ) 
+            {
+                moveDetails = {...moveGeneral}
+                moveDetails.mode = 'line'
+                moveDetails.dash = true
+                this.main.legalMoves.push( moveDetails )
+            }
+            if ( this.pieceMovementValidation( 'line', false, piece, direction ) ) 
+            {
+                moveDetails = {...moveGeneral}
+                moveDetails.mode = 'line'
+                moveDetails.dash = false
+                this.main.legalMoves.push( moveDetails )
+            }
+            if ( this.pieceMovementValidation( 'left', null, piece, direction ) ) 
+            {
+                moveDetails = {...moveGeneral}
+                moveDetails.mode = 'left'
+                this.main.legalMoves.push( moveDetails )
+            }
+            if ( this.pieceMovementValidation( 'right', null, piece, direction ) ) 
+            {
+                moveDetails = {...moveGeneral}
+                moveDetails.mode = 'right'
+                this.main.legalMoves.push( moveDetails )
+            }
+        }
     }
+
+    pieceMovementValidation = ( mode, performDash, piece, direction ) => {
+        let moveOk = false
+        if ( piece.type === 'pawn' ) {
     
-    //
-}
-
-const generateLegalMovesSpecific = ( piece ) => {
-    if ( piece.type === 'pawn' ) {
-        let direction
-        if ( piece.color === 'Black' ) direction = 1
-        else if ( piece.color === 'White' ) direction = -1
-        //
-        if ( pieceMovementValidation( 'line', true, piece, direction ) )
-            variables.legalMoves.push( 
-                { mode: 'line', dash: true, piece: piece, direction: direction } )
-        if ( pieceMovementValidation( 'line', false, piece, direction ) )
-            variables.legalMoves.push( 
-                { mode: 'line', dash: false, piece: piece, direction: direction } )
-        if ( pieceMovementValidation( 'left', false, piece, direction ) )
-            variables.legalMoves.push( 
-                { mode: 'left', dash: false, piece: piece, direction: direction } )
-        if ( pieceMovementValidation( 'right', false, piece, direction ) )
-            variables.legalMoves.push( 
-                { mode: 'right', dash: false, piece: piece, direction: direction } )
+            if ( 
+                ( direction === 1 && piece.y + 1 < constants.rowCount ) || 
+                ( direction === -1 && piece.y - 1 >= 0 ) 
+            ) 
+                moveOk = true
+    
+            if ( moveOk && mode === 'line' ) {
+                moveOk = !this.locatePieceAt( piece, 0, direction, false )
+                if ( performDash ) {
+                    if ( moveOk && piece.moves === 0 ) {
+                        moveOk = !this.locatePieceAt( piece, 0, direction * 2, false )
+                    }
+                    else moveOk = false
+                }
+            }
+            else if ( 
+                moveOk && (
+                    ( mode === 'left' && (
+                            ( piece.x - 1 < 0 ) ||
+                            ( !this.locatePieceAt( piece, -1, direction, false ) )
+                        )
+                    ) ||
+                    ( mode === 'right' && (
+                            ( piece.x + 1 >= constants.colCount - 1 ) ||
+                            ( !this.locatePieceAt( piece, 1, direction, false ) )
+                        )
+                    )
+                )
+            ) 
+                moveOk = false
+    
+        }
+        return moveOk
     }
-}
 
-const pieceMovement = ( mode, performDash, piece, direction ) => {
-    console.log( mode, performDash, piece, direction )    
-    if ( piece.type === 'pawn' ) {
-
-        if ( mode === 'left' ) piece.x--
-        else if ( mode === 'right' ) piece.x++
-
-        if ( mode === 'line' 
-            && performDash 
-            && piece.moves === 0 ) piece.y += direction * 2
-        else piece.y += direction
-
-    }
-    piece.moves++
-    const piecePhysical = document.getElementById( piece.id )
-    piecePhysical.style.top = piece.y * constants.rowHeight + 'px'
-    piecePhysical.style.left = piece.x * constants.colWidth + 'px'
-    locatePieceAt( piece, 0, 0, true )
-    checkVictoryCondition()
-}
-
-const checkVictoryCondition = () => {
-    let different = false
-    if ( variables.pieces.length !== 1 ) {
-        let piece
-        for ( let i = 0; i < variables.pieces.length - 1; i++ ) {
-            piece = variables.pieces[i]
-            if ( piece.color !== variables.pieces[i+1].color ) {
-                different = true
+    locatePieceAt = ( piece, xOffset, yOffset, takePiece ) => {
+        let found = false
+        let otherPiece
+        for ( let i = 0; i < this.main.pieces.length; i++ ) {
+            otherPiece = this.main.pieces[i]
+            if ( otherPiece.id !== piece.id 
+                && piece.x + xOffset === otherPiece.x 
+                && piece.y + yOffset === otherPiece.y ) 
+            {
+                found = true
+                if ( takePiece ) {
+                    console.log( 'taken!' )   
+                    this.main.pieces.splice( i, 1 )
+                    this.main.piecesTaken.push( otherPiece )    
+                    document.getElementById( otherPiece.id ).style.visibility = 'hidden'
+                }
                 break
             }
+        }  
+        return found
+    }
+
+    pieceMovement = ( mode, performDash, piece, direction ) => {   
+        if ( piece.type === 'pawn' ) {
+    
+            if ( mode === 'left' ) piece.x--
+            else if ( mode === 'right' ) piece.x++
+    
+            if ( mode === 'line' 
+                && performDash 
+                && piece.moves === 0 ) piece.y += direction * 2
+            else piece.y += direction
+    
         }
+        piece.moves++
+        const piecePhysical = document.getElementById( piece.id )
+        piecePhysical.style.top = piece.y * constants.rowHeight + 'px'
+        piecePhysical.style.left = piece.x * constants.colWidth + 'px'
+        this.locatePieceAt( piece, 0, 0, true )
+        this.checkVictoryCondition()
     }
-    if ( !different ) {
-        console.log( variables.pieces[0].color + ' Wins!' )
-        variables.victory = true
+
+    checkVictoryCondition = () => {
+        let different = false
+        if ( this.main.pieces.length > 1 ) {
+            let piece
+            for ( let i = 0; i < this.main.pieces.length - 1; i++ ) {
+                piece = this.main.pieces[i]
+                if ( piece.color !== this.main.pieces[i+1].color ) {
+                    different = true
+                    break
+                }
+            }
+        }
+        if ( !different ) {
+            console.log(this.main.pieces[0].color + ' Wins!' )
+            setTimeout( () => alert( this.main.pieces[0].color + ' Wins!' ), 100 )
+            this.main.victory = true
+        }
+        else this.generateLegalMoves()
     }
-    else generateLegalMoves()
 }
