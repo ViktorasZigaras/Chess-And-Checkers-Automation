@@ -9,13 +9,14 @@ export default class MoveSet {
     }
 
     generateLegalMoves = () => {
-        this.main.legalMoves = []
+        this.main.legalMovesWhite = []
+        this.main.legalMovesBlack = []
         for ( let i = 0; i < this.main.pieces.length; i++ ) {
             this.generateLegalMovesSpecific( this.main.pieces[i] )
         }
-        if ( this.main.legalMoves.length === 0 ) {
+        if ( this.main.legalMovesWhite.length === 0 || this.main.legalMovesBlack.length === 0 ) {
             console.log( 'Draw!' )
-            setTimeout( () => alert( 'Draw!' ), 100 )
+            // setTimeout( () => alert( 'Draw!' ), 100 )
             this.main.victory = true
         }
     }
@@ -23,40 +24,35 @@ export default class MoveSet {
     generateLegalMovesSpecific = ( piece ) => {
         if ( piece.type === 'pawn' ) {
             let direction
-            if ( piece.color === 'Black' ) direction = 1
-            else if ( piece.color === 'White' ) direction = -1
-            const moveGeneral = { 
+            let legalMoves
+            if ( piece.color === 'Black' ) {
+                legalMoves = this.main.legalMovesBlack
+                direction = 1
+            }
+            else if ( piece.color === 'White' ) {
+                legalMoves = this.main.legalMovesWhite
+                direction = -1
+            }
+            this.moveGeneral = { 
                 info: piece.color + ' ' + piece.type + '-' + piece.id, 
                 piece: piece, 
                 direction: direction 
             }
-            let moveDetails
-            if ( this.pieceMovementValidation( 'line', true, piece, direction ) ) 
-            {
-                moveDetails = {...moveGeneral}
-                moveDetails.mode = 'line'
-                moveDetails.dash = true
-                this.main.legalMoves.push( moveDetails )
-            }
-            if ( this.pieceMovementValidation( 'line', false, piece, direction ) ) 
-            {
-                moveDetails = {...moveGeneral}
-                moveDetails.mode = 'line'
-                moveDetails.dash = false
-                this.main.legalMoves.push( moveDetails )
-            }
-            if ( this.pieceMovementValidation( 'left', null, piece, direction ) ) 
-            {
-                moveDetails = {...moveGeneral}
-                moveDetails.mode = 'left'
-                this.main.legalMoves.push( moveDetails )
-            }
-            if ( this.pieceMovementValidation( 'right', null, piece, direction ) ) 
-            {
-                moveDetails = {...moveGeneral}
-                moveDetails.mode = 'right'
-                this.main.legalMoves.push( moveDetails )
-            }
+            this.checkMove( 'line', true, piece, direction, legalMoves )
+            this.checkMove( 'line', false, piece, direction, legalMoves )
+            this.checkMove( 'left', null, piece, direction, legalMoves )
+            this.checkMove( 'right', null, piece, direction, legalMoves )
+        }
+    }
+
+    checkMove = ( mode, performDash, piece, direction, legalMoves ) => {
+        let moveDetails
+        if ( this.pieceMovementValidation( mode, performDash, piece, direction ) ) 
+        {
+            moveDetails = { ...this.moveGeneral }
+            moveDetails.mode = mode
+            moveDetails.dash = performDash
+            legalMoves.push( moveDetails )
         }
     }
 
@@ -155,7 +151,7 @@ export default class MoveSet {
         }
         if ( !different ) {
             console.log(this.main.pieces[0].color + ' Wins!' )
-            setTimeout( () => alert( this.main.pieces[0].color + ' Wins!' ), 100 )
+            // setTimeout( () => alert( this.main.pieces[0].color + ' Wins!' ), 100 )
             this.main.victory = true
         }
         else this.generateLegalMoves()

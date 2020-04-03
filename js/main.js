@@ -9,7 +9,8 @@ class ChessGame {
         this.board = document.querySelector( '.board' ) //All
         this.pieces = []
         this.piecesTaken = []
-        this.legalMoves = []
+        this.legalMovesWhite = []
+        this.legalMovesBlack = []
         this.victory = false
         this.timerTest = []
         this.moves = null
@@ -45,7 +46,7 @@ class ChessGame {
 
     startTimer = () => {
         this.moves.generateLegalMoves( this )
-    
+        this.counter = 0
         this.timerTest = setInterval( 
             () => this.testMovement(), 500 
         )
@@ -53,9 +54,13 @@ class ChessGame {
     
     testMovement = () => {
         if ( !this.victory ) {
-            const move = this.legalMoves[ 
-                this.getRngInteger( 0, this.legalMoves.length - 1 ) ]
-            console.log( move, this.legalMoves )        
+            this.counter++
+            let legalMoves
+            if ( this.counter % 2 === 1 ) legalMoves = this.legalMovesWhite
+            else legalMoves = this.legalMovesBlack
+            //
+            const move = legalMoves[ this.getRngInteger( 0, legalMoves.length - 1 ) ]
+            console.log( move, legalMoves, this.counter )        
             this.moves.pieceMovement( 
                 move.mode, 
                 move.dash, 
