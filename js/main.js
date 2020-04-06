@@ -1,85 +1,90 @@
 "use strict"
 
-import { setUpPieces } from './pieces.js'
+import { setUpPiecesFunc } from './pieces.js'
 import * as constants from './variables.js'
-import MoveSet from './moveset.js'
+import MoveSetClass from './moveset.js'
 
-class ChessGame {
+class ChessGameClass {
     constructor() {
-        this.board = document.querySelector( '.board' ) //All
-        this.pieces = []
-        this.piecesTaken = []
-        this.legalMovesWhite = []
-        this.legalMovesBlack = []
-        this.victory = false
-        this.timerTest = []
-        this.moves = null
-        this.init()
+        this.boardDom = document.querySelector( '.board' ) //All
+        this.piecesArr = []
+        this.piecesTakenArr = []
+        this.legalMovesWhiteArr = []
+        this.legalMovesBlackArr = []
+        this.victoryBool = false
+        this.movesObj = null
+        this.timerTestObj = null
+
+        this.initMeth()
     }
     
-    init() {
-        this.drawBoard()
-        setUpPieces( this.pieces, this.board )
-        this.moves = new MoveSet( this )
-        this.startTimer()
+    initMeth() {
+        this.drawBoardMeth()
+        setUpPiecesFunc( this.piecesArr, this.boardDom )
+        this.movesObj = new MoveSetClass( this )
+        this.startTimerMeth()
     }
 
-    drawBoard = () => {
-        let content = ''
-        let color = ''
-        for ( let y = 0; y < constants.rowCount; y++ ) {
-            content += `<div class="row" style="height: ${ constants.rowHeight }px">`
-            for ( let x = 0; x < constants.colCount; x++ ) {
+    drawBoardMeth() {
+        let contentHtml = ''
+        let colorStr = ''
+        for ( let y = 0; y < constants.rowCountNum; y++ ) {
+            contentHtml += `<div class="row" style="height: ${ constants.rowHeightNum }px">`
+            for ( let x = 0; x < constants.colCountNum; x++ ) {
                 if ( 
                     ( y % 2 === 1 && x % 2 === 0 ) ||
                     ( y % 2 === 0 && x % 2 === 1 )
                     //( (x + y) % 2 === 0 )
-                ) color = 'black'
-                else color = 'white'
-                content += `<div class="column ${ color }" 
-                    style="width: ${ constants.colWidth }px"> </div>`
+                ) colorStr = 'black'
+                else colorStr = 'white'
+                contentHtml += `<div class="column ${ colorStr }" 
+                    style="width: ${ constants.colWidthNum }px"> </div>`
             }
-            content += `</div>`
+            contentHtml += `</div>`
         }
-        this.board.innerHTML = content
+        this.boardDom.innerHTML = contentHtml
     }
 
-    startTimer = () => {
-        this.moves.generateLegalMoves( this )
-        this.counter = 0
-        this.timerTest = setInterval( 
-            () => this.testMovement(), 500 
-        )
+    startTimerMeth() {
+        this.movesObj.generateLegalMovesMeth( this )
+        this.counterNum = 0
+        this.timerTestObj = setInterval( () => this.movementMeth(), 500 )
     }
     
-    testMovement = () => {
-        if ( !this.victory ) {
-            this.counter++
-            let legalMoves
-            if ( this.counter % 2 === 1 ) legalMoves = this.legalMovesWhite
-            else legalMoves = this.legalMovesBlack
+    movementMeth() {
+        if ( !this.victoryBool ) {
+            this.counterNum++
+            let legalMovesArr
+            if ( this.counterNum % 2 === 1 ) legalMovesArr = this.legalMovesWhiteArr
+            else legalMovesArr = this.legalMovesBlackArr
             //
-            const move = legalMoves[ this.getRngInteger( 0, legalMoves.length - 1 ) ]
-            console.log( move, legalMoves, this.counter )        
-            this.moves.pieceMovement( 
-                move.mode, 
-                move.dash, 
-                move.piece, 
-                move.direction 
+            const moveObj = legalMovesArr[ this.getRngIntegerMeth( 0, legalMovesArr.length - 1 ) ]
+            console.log( moveObj, legalMovesArr, this.counterNum )        
+            this.movesObj.pieceMovementMeth( 
+                moveObj.modeStr, 
+                moveObj.dashBool, 
+                moveObj.pieceObj, 
+                moveObj.directionNum
             )
         }
-        else clearInterval( this.timerTest )
+        else clearInterval( this.timerTestObj )
     }
     
-    getRngInteger = ( min, max ) => {
-        return Math.floor( Math.random() * ( max - min + 1 ) ) + min
+    getRngIntegerMeth = ( minNum, maxNum ) => {
+        return Math.floor( Math.random() * ( maxNum - minNum + 1 ) ) + minNum
     }
 }
 
-const game = new ChessGame()
+// const gameObj = new ChessGameClass()
+// console.log( gameObj ) 
+// console.log( new ChessGameClass() ) 
+new ChessGameClass()
 
 //innerHtml
 //innerText
 //textContent - ?
 // ctrl-d - select all; ctrl+shift+L
 //parseInt, etc, parseFloat
+
+// insertAdjacentHtml + before/after - 4 options + html piece
+// css: user-select property

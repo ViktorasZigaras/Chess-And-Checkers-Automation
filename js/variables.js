@@ -1,6 +1,6 @@
 "use strict"
 
-export const rowCount = 8
-export const colCount = 8
-export const rowHeight = 75
-export const colWidth = 75
+export const rowCountNum = 8
+export const colCountNum = 8
+export const rowHeightNum = 75
+export const colWidthNum = 75

@@ -1,32 +1,32 @@
 "use strict"
 
-import { rowHeight, colWidth } from './variables.js'
+import { rowHeightNum, colWidthNum } from './variables.js'
 
-let pieces, board
+let piecesArr, boardDom
 
-export const setUpPieces = ( pieces_, board_ ) => {   
-    pieces = pieces_
-    board = board_
-    createPiece( 'pawn' , 0, 0, 'Black', 'Pawn Black-1', 0 )
-    createPiece( 'pawn' , 0, 5, 'White', 'Pawn White-1', 1 )
+export const setUpPiecesFunc = ( piecesArr_, boardDom_ ) => {   
+    piecesArr = piecesArr_
+    boardDom = boardDom_
+    createPieceFunc( 'pawn' , 0, 0, 'Black', 'Pawn Black-1', 0 )
+    createPieceFunc( 'pawn' , 0, 5, 'White', 'Pawn White-1', 1 )
 
 }
 
-const createPiece = ( type, x, y, color, text, id ) => {
-    let piece = {}
-    piece.type = type
-    piece.x = x
-    piece.y = y
-    piece.moves = 0
-    piece.id = id
-    piece.color = color
-    pieces.push(piece)
+const createPieceFunc = ( typeStr, xNum, yNum, colorStr, textStr, idNum ) => {
+    let pieceObj = {}
+    pieceObj.typeStr = typeStr
+    pieceObj.xNum = xNum
+    pieceObj.yNum = yNum
+    pieceObj.movesNum = 0
+    pieceObj.idNum = idNum
+    pieceObj.colorStr = colorStr
+    piecesArr.push( pieceObj )
 
-    let piecePhysical = document.createElement( 'div' )
-    piecePhysical.id = id
-    piecePhysical.style.top = rowHeight * piece.y + 'px'
-    piecePhysical.style.left = colWidth * piece.x + 'px'
-    piecePhysical.className = 'piece piece-' + color
-    piecePhysical.innerHTML = text
-    board.appendChild( piecePhysical )
+    let pieceDom = document.createElement( 'div' )
+    pieceDom.id = idNum
+    pieceDom.style.top = rowHeightNum * pieceObj.yNum + 'px'
+    pieceDom.style.left = colWidthNum * pieceObj.xNum + 'px'
+    pieceDom.className = 'piece piece-' + colorStr
+    pieceDom.innerHTML = textStr
+    boardDom.appendChild( pieceDom )
 }
