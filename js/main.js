@@ -6,11 +6,13 @@ import MoveSetClass from './moveset.js'
 
 class ChessGameClass {
     constructor() {
-        this.boardDom = document.querySelector( '.board' ) //All
+        this.boardDom = document.querySelector( '.board' )
+        this.borderDom = null
         this.piecesArr = []
         this.piecesTakenArr = []
         this.legalMovesWhiteArr = []
         this.legalMovesBlackArr = []
+        this.coordsArrx2 = null
         this.victoryBool = false
         this.movesObj = null
         this.timerTestObj = null
@@ -20,29 +22,50 @@ class ChessGameClass {
     
     initMeth() {
         this.drawBoardMeth()
-        setUpPiecesFunc( this.piecesArr, this.boardDom )
+        setUpPiecesFunc( this.piecesArr, this.borderDom, this.coordsArrx2 )
         this.movesObj = new MoveSetClass( this )
-        this.startTimerMeth()
+        // this.startTimerMeth()
     }
 
     drawBoardMeth() {
-        let contentHtml = ''
+        let contentHtml = `
+            <div class="buttons">
+                <div class="button speed" id="slow">Slow</div>
+                <div class="button speed default" id="medium">Medium</div>
+                <div class="button speed" id="fast">Fast</div>
+                <div class="button control" id="start">Start</div>
+                <div class="button control default" id="pause">Pause</div>
+                <div class="button control" id="next">Next</div>
+                <div class="button control" id="reset">Reset</div>
+            </div>
+            <div class="border">
+        `
         let colorStr = ''
-        for ( let y = 0; y < constants.rowCountNum; y++ ) {
-            contentHtml += `<div class="row" style="height: ${ constants.rowHeightNum }px">`
-            for ( let x = 0; x < constants.colCountNum; x++ ) {
+        this.coordsArrx2 = []
+        let columnArr
+        for ( let x = 0; x < constants.colCountNum; x++ ) {
+            contentHtml += `<div class="column">`
+            columnArr = []
+            for ( let y = 0; y < constants.rowCountNum; y++ ) {
                 if ( 
                     ( y % 2 === 1 && x % 2 === 0 ) ||
                     ( y % 2 === 0 && x % 2 === 1 )
                     //( (x + y) % 2 === 0 )
                 ) colorStr = 'black'
                 else colorStr = 'white'
-                contentHtml += `<div class="column ${ colorStr }" 
-                    style="width: ${ constants.colWidthNum }px"> </div>`
+                contentHtml += 
+                    `<div class="cell ${ colorStr }" 
+                        style="height: ${ constants.rowHeightNum }px; 
+                        width: ${ constants.colWidthNum }px"></div>`
+                columnArr.push( false )
             }
             contentHtml += `</div>`
+            this.coordsArrx2.push( columnArr )
         }
+        contentHtml += `</div>`
         this.boardDom.innerHTML = contentHtml
+        this.borderDom = document.querySelector( '.border' )
+        console.log( this.coordsArrx2 )        
     }
 
     startTimerMeth() {
@@ -58,7 +81,9 @@ class ChessGameClass {
             if ( this.counterNum % 2 === 1 ) legalMovesArr = this.legalMovesWhiteArr
             else legalMovesArr = this.legalMovesBlackArr
             //
-            const moveObj = legalMovesArr[ this.getRngIntegerMeth( 0, legalMovesArr.length - 1 ) ]
+            const moveObj = legalMovesArr[ 
+                this.getRngIntegerMeth( 0, legalMovesArr.length - 1 ) 
+            ]
             console.log( moveObj, legalMovesArr, this.counterNum )        
             this.movesObj.pieceMovementMeth( 
                 moveObj.modeStr, 
@@ -75,9 +100,6 @@ class ChessGameClass {
     }
 }
 
-// const gameObj = new ChessGameClass()
-// console.log( gameObj ) 
-// console.log( new ChessGameClass() ) 
 new ChessGameClass()
 
 //innerHtml

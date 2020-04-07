@@ -10,10 +10,10 @@ export default class MoveSetClass {
     generateLegalMovesMeth() {
         this.mainObj.legalMovesWhiteArr = []
         this.mainObj.legalMovesBlackArr = []
-        for ( let i = 0; i < this.mainObj.piecesArr.length; i++ ) {
-            this.generateLegalMovesSpecificMeth( this.mainObj.piecesArr[i] )
-        }
-        if ( this.mainObj.legalMovesWhiteArr.length === 0 || this.mainObj.legalMovesBlackArr.length === 0 ) {
+        this.mainObj.piecesArr.forEach( ( piece ) => this.generateLegalMovesSpecificMeth( piece ) )
+        if ( this.mainObj.legalMovesWhiteArr.length === 0 || 
+             this.mainObj.legalMovesBlackArr.length === 0 )
+        {
             console.log( 'Draw!' )
             // setTimeout( () => alert( 'Draw!' ), 100 )
             this.mainObj.victoryBool = true
@@ -43,38 +43,28 @@ export default class MoveSetClass {
     }
 
     checkMoveMeth( modeStr, dashBool, pieceObj ) {
-        if ( 
-            this.pieceMovementValidationMeth( modeStr, dashBool, pieceObj, this.directionNum ) 
-        ) 
-        {
-            // let moveDetailsObj = { ...this.moveGeneralObj }
-            // moveDetailsObj.modeStr = modeStr
-            // moveDetailsObj.dashBool = dashBool
-            // legalMovesArr.push( moveDetailsObj )
+        if ( this.pieceMovementValidationMeth( modeStr, dashBool, pieceObj, this.directionNum ) ) 
             this.legalMovesArr.push( 
-                Object.assign( { ...this.moveGeneralObj }, 
-                    { modeStr: modeStr, dashBool: dashBool } 
+                Object.assign( 
+                    { ...this.moveGeneralObj }, { modeStr: modeStr, dashBool: dashBool } 
                 ) 
             )
-        }
     }
 
     pieceMovementValidationMeth( modeStr, dashBool, pieceObj, directionNum ) {
         let moveOkBool = false
         if ( pieceObj.typeStr === 'pawn' ) {
     
-            if ( 
-                ( directionNum === 1 && pieceObj.yNum + 1 < constants.rowCountNum ) || 
-                ( directionNum === -1 && pieceObj.yNum - 1 >= 0 ) 
-            ) 
+            if ( ( directionNum === 1 && pieceObj.yNum + 1 < constants.rowCountNum ) || 
+                 ( directionNum === -1 && pieceObj.yNum - 1 >= 0 ) ) 
                 moveOkBool = true
     
             if ( moveOkBool && modeStr === 'line' ) {
-                moveOkBool = !this.locatePieceAtMeth( pieceObj, 0, directionNum, false )
+                moveOkBool = !this.locatePieceAtMeth( pieceObj.xNum, pieceObj.yNum + directionNum )
                 if ( dashBool ) {
                     if ( moveOkBool && pieceObj.movesNum === 0 ) {
-                        moveOkBool = 
-                            !this.locatePieceAtMeth( pieceObj, 0, directionNum * 2, false )
+                        moveOkBool = !this.locatePieceAtMeth( 
+                            pieceObj.xNum, pieceObj.yNum + directionNum * 2 )
                     }
                     else moveOkBool = false
                 }
@@ -83,12 +73,18 @@ export default class MoveSetClass {
                 moveOkBool && (
                     ( modeStr === 'left' && (
                             ( pieceObj.xNum - 1 < 0 ) ||
-                            ( !this.locatePieceAtMeth( pieceObj, -1, directionNum, false ) )
+                            ( pieceObj.xNum - 1 >= 0 && 
+                                !this.locatePieceAtMeth( 
+                                    pieceObj.xNum - 1, pieceObj.yNum + directionNum ) 
+                            )
                         )
                     ) ||
                     ( modeStr === 'right' && (
                             ( pieceObj.xNum + 1 >= constants.colCountNum - 1 ) ||
-                            ( !this.locatePieceAtMeth( pieceObj, 1, directionNum, false ) )
+                            ( pieceObj.xNum + 1 < constants.colCountNum &&
+                                !this.locatePieceAtMeth( 
+                                    pieceObj.xNum + 1, pieceObj.yNum + directionNum ) 
+                            )
                         )
                     )
                 )
@@ -99,45 +95,45 @@ export default class MoveSetClass {
         return moveOkBool
     }
 
-    locatePieceAtMeth ( pieceObj, xOffsetNum, yOffsetNum, takePieceBool ) {
-        let foundBool = false
+    locatePieceAtMeth( xNum, yNum ) {
+        return this.mainObj.coordsArrx2[ xNum ][ yNum ] 
+    }
+
+    removePieceMeth( pieceObj ) {
         let otherPieceObj
         for ( let i = 0; i < this.mainObj.piecesArr.length; i++ ) {
-            otherPieceObj = this.mainObj.piecesArr[i]
-            if ( otherPieceObj.idNum !== pieceObj.idNum 
-                && pieceObj.xNum  + xOffsetNum === otherPieceObj.xNum  
-                && pieceObj.yNum  + yOffsetNum === otherPieceObj.yNum  ) 
+            otherPieceObj = this.mainObj.piecesArr[ i ]
+            if ( otherPieceObj.idNum !== pieceObj.idNum &&
+                 pieceObj.xNum === otherPieceObj.xNum && 
+                 pieceObj.yNum === otherPieceObj.yNum ) 
             {
-                foundBool = true
-                if ( takePieceBool ) {
-                    console.log( 'taken!' )   
-                    this.mainObj.piecesArr.splice( i, 1 )
-                    this.mainObj.piecesTakenArr.push( otherPieceObj )    
-                    document.getElementById( otherPieceObj.idNum ).style.visibility = 'hidden'
-                }
+                console.log( 'taken!' )   
+                this.mainObj.piecesArr.splice( i, 1 )
+                this.mainObj.piecesTakenArr.push( otherPieceObj )    
+                document.getElementById( otherPieceObj.idNum ).style.visibility = 'hidden'
                 break
             }
-        }  
-        return foundBool
+        } 
     }
 
     pieceMovementMeth( modeStr, dashBool, pieceObj, directionNum ) {   
+        this.mainObj.coordsArrx2[ pieceObj.xNum ][ pieceObj.yNum ] = false
         if ( pieceObj.typeStr === 'pawn' ) {
     
             if ( modeStr === 'left' ) pieceObj.xNum--
             else if ( modeStr === 'right' ) pieceObj.xNum++
     
-            if ( modeStr === 'line' 
-                && dashBool 
-                && pieceObj.movesNum === 0 ) pieceObj.yNum += directionNum * 2
+            if ( modeStr === 'line' && dashBool && pieceObj.movesNum === 0 ) 
+                pieceObj.yNum += directionNum * 2
             else pieceObj.yNum += directionNum
     
         }
+        this.mainObj.coordsArrx2[ pieceObj.xNum ][ pieceObj.yNum ] = true
         pieceObj.movesNum++
         const pieceDom = document.getElementById( pieceObj.idNum )
         pieceDom.style.top = pieceObj.yNum * constants.rowHeightNum + 'px'
         pieceDom.style.left = pieceObj.xNum * constants.colWidthNum + 'px'
-        this.locatePieceAtMeth( pieceObj, 0, 0, true )
+        this.removePieceMeth( pieceObj )
         this.checkVictoryConditionMeth()
     }
 
@@ -146,16 +142,16 @@ export default class MoveSetClass {
         if ( this.mainObj.piecesArr.length > 1 ) {
             let pieceObj
             for ( let i = 0; i < this.mainObj.piecesArr.length - 1; i++ ) {
-                pieceObj = this.mainObj.piecesArr[i]
-                if ( pieceObj.colorStr !== this.mainObj.piecesArr[i+1].colorStr ) {
+                pieceObj = this.mainObj.piecesArr[ i ]
+                if ( pieceObj.colorStr !== this.mainObj.piecesArr[ i+1 ].colorStr ) {
                     differentBool = true
                     break
                 }
             }
         }
         if ( !differentBool ) {
-            console.log(this.mainObj.piecesArr[0].colorStr + ' Wins!' )
-            // setTimeout( () => alert( this.mainObj.piecesArr[0].colorStr + ' Wins!' ), 100 )
+            console.log(this.mainObj.piecesArr[ 0 ].colorStr + ' Wins!' )
+            // setTimeout( () => alert( this.mainObj.piecesArr[ 0 ].colorStr + ' Wins!' ), 100 )
             this.mainObj.victoryBool = true
         }
         else this.generateLegalMovesMeth()
