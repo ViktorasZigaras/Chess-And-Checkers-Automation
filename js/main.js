@@ -16,6 +16,11 @@ class ChessGameClass {
         this.victoryBool = false
         this.movesObj = null
         this.timerTestObj = null
+        this.startButtonDom = null
+        this.pauseButtonDom = null
+        this.resetButtonDom = null
+        this.controlButtonClassesStr = 'button control'
+        this.gameIsRunningBool = false
 
         this.initMeth()
     }
@@ -24,7 +29,7 @@ class ChessGameClass {
         this.drawBoardMeth()
         setUpPiecesFunc( this.piecesArr, this.borderDom, this.coordsArrx2 )
         this.movesObj = new MoveSetClass( this )
-        // this.startTimerMeth()
+        this.resetMeth()
     }
 
     drawBoardMeth() {
@@ -35,7 +40,7 @@ class ChessGameClass {
                 <div class="button speed" id="fast">Fast</div>
                 <div class="button control" id="start">Start</div>
                 <div class="button control default" id="pause">Pause</div>
-                <div class="button control" id="next">Next</div>
+                <div class="button control" id="next">Next (0)</div>
                 <div class="button control" id="reset">Reset</div>
             </div>
             <div class="border">
@@ -65,18 +70,64 @@ class ChessGameClass {
         contentHtml += `</div>`
         this.boardDom.innerHTML = contentHtml
         this.borderDom = document.querySelector( '.border' )
-        console.log( this.coordsArrx2 )        
+        this.startButtonDom = document.querySelector( '#start' )
+        this.startButtonDom.addEventListener( 'click', () => this.startClickMeth() )
+        this.pauseButtonDom = document.querySelector( '#pause' )
+        this.pauseButtonDom.addEventListener( 'click', () => this.pauseClickMeth() )
+        this.nextButtonDom = document.querySelector( '#next' )
+        this.nextButtonDom.addEventListener( 'click', () => this.nextClickMeth() )
+        this.resetButtonDom = document.querySelector( '#reset' )
+        this.resetButtonDom.addEventListener( 'click', () => this.resetClickMeth() )
+        // console.log( this.coordsArrx2 )        
     }
 
-    startTimerMeth() {
+    startClickMeth() {
+        if ( !this.victoryBool && !this.gameIsRunningBool ) {
+            this.startButtonDom.className = this.controlButtonClassesStr + ' default'
+            this.pauseButtonDom.className = this.controlButtonClassesStr
+            this.gameIsRunningBool = true
+            this.timerTestObj = setInterval( () => this.movementMeth(), 500 )
+        }
+    }
+
+    pauseClickMeth() {
+        if ( this.gameIsRunningBool ) {
+            clearInterval( this.timerTestObj )
+            this.gameIsRunningBool = false
+            this.startButtonDom.className = this.controlButtonClassesStr
+            this.pauseButtonDom.className = this.controlButtonClassesStr + ' default'
+        }
+    }
+
+    nextClickMeth() {
+        this.movementMeth()
+    }
+
+    resetClickMeth() {
+        this.nextButtonDom.innerText = 'Next (0)'
+        this.startButtonDom.className = this.controlButtonClassesStr
+        this.pauseButtonDom.className = this.controlButtonClassesStr + ' default'
+        this.resetMeth()
+
+        //clear coords
+        //reposition existing pieces
+    }
+
+    //execute after draw move
+    //speed controls
+
+    resetMeth() {
         this.movesObj.generateLegalMovesMeth( this )
         this.counterNum = 0
-        this.timerTestObj = setInterval( () => this.movementMeth(), 500 )
+        this.gameIsRunningBool = false
+        this.victoryBool = false
+        clearInterval( this.timerTestObj )
     }
     
     movementMeth() {
         if ( !this.victoryBool ) {
             this.counterNum++
+            this.nextButtonDom.innerText = `Next (${this.counterNum})`
             let legalMovesArr
             if ( this.counterNum % 2 === 1 ) legalMovesArr = this.legalMovesWhiteArr
             else legalMovesArr = this.legalMovesBlackArr
@@ -92,7 +143,7 @@ class ChessGameClass {
                 moveObj.directionNum
             )
         }
-        else clearInterval( this.timerTestObj )
+        else this.pauseClickMeth()
     }
     
     getRngIntegerMeth = ( minNum, maxNum ) => {

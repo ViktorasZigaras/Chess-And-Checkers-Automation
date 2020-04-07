@@ -10,17 +10,17 @@ export const setUpPiecesFunc = ( piecesArr_, borderDom_, coordsArrx2_ ) => {
     coordsArrx2 = coordsArrx2_
     createPieceFunc( 'pawn' , 0, 0, 'Black', 'Pawn Black-1', 0 )
     createPieceFunc( 'pawn' , 1, 7, 'White', 'Pawn White-1', 1 )
-
 }
 
 const createPieceFunc = ( typeStr, xNum, yNum, colorStr, textStr, idNum ) => {
-    let pieceObj = {}
-    pieceObj.typeStr = typeStr
-    pieceObj.xNum = xNum
-    pieceObj.yNum = yNum
-    pieceObj.movesNum = 0
-    pieceObj.idNum = idNum
-    pieceObj.colorStr = colorStr
+    let pieceObj = { 
+        typeStr: typeStr, 
+        xNum: xNum, 
+        yNum: yNum, 
+        movesNum: 0, 
+        idNum: idNum,
+        colorStr: colorStr
+    }
     piecesArr.push( pieceObj )
 
     coordsArrx2[ xNum ][ yNum ] = true
